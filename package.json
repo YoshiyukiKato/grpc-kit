@@ -4,7 +4,7 @@
   "description": "use grpc more simply",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "$(npm bin)/mocha --require intelli-espower-loader test"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,12 @@
   "peerDependencies": {
     "grpc": "^1.17.0",
     "@grpc/proto-loader": "^0.3.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@grpc/proto-loader": "^0.3.0",
+    "grpc": "^1.17.0",
+    "intelli-espower-loader": "^1.0.1",
+    "mocha": "^5.2.0"
   }
 }

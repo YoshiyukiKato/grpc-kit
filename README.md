@@ -32,10 +32,10 @@ server.use({
   serviceName: "Greeter",
   routes: {
     hello: (call, callback) => {
-      callback(null, `Hello, ${call.request.name}`);
+      callback(null, { message: `Hello, ${call.request.name}` });
     },
-    goodbye: (call, callback) => {
-      callback(null, `Goodbye, ${call.request.name}`);
+    goodbye: async (call) => {
+      return { message: `Goodbye, ${call.request.name}` };
     }
   }
 });
@@ -51,7 +51,12 @@ const client = createClient({
   serviceName: "Greeter"
 }, "0.0.0.0:50051");
 
-client.hello({ name: "jack" }, (err, message) => {
+client.hello({ name: "Jack" }, (err, { message }) => {
+  if(err) throw err;
+  console.log(message);
+});
+
+client.goodbye({ name: "John" }, (err, { message }) => {
   if(err) throw err;
   console.log(message);
 });

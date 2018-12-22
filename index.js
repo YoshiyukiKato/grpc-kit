@@ -6,6 +6,10 @@ function createClient({ protoPath, packageName, serviceName }, address, creds=gr
   return new proto[serviceName](address, creds);
 }
 
+function createServer(){
+  return new GrpcServer();
+}
+
 class GrpcServer {
   constructor(){
     this.server = new grpc.Server();
@@ -17,7 +21,7 @@ class GrpcServer {
       _router[action] = handleWhetherAsyncOrNot(handler);
       return _router;
     }, {});
-    this.server.addProtoService(proto[serviceName].service, router);
+    this.server.addService(proto[serviceName].service, router);
     return this;
   }
   
@@ -39,7 +43,7 @@ class GrpcServer {
 function handleWhetherAsyncOrNot(handler){
   return (call, callback) => {
     const mightBePromise = handler(call, callback);
-    if(mightBePromise.then && mightBePromise.catch){
+    if(mightBePromise && mightBePromise.then && mightBePromise.catch){
       return mightBePromise
         .then((result) => callback(null, result))
         .catch((err) => callback(err));
@@ -48,4 +52,4 @@ function handleWhetherAsyncOrNot(handler){
 }
 
 exports.createClient = createClient;
-exports.GrpcServer = GrpcServer;
+exports.createServer = createServer;
