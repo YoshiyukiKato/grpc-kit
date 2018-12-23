@@ -37,6 +37,7 @@ class GrpcServer {
     }else{
       this.server.tryShutdown(cb);
     }
+    return this;
   }
 }
 
