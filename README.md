@@ -1,5 +1,10 @@
 # grpc-kit
-use grpc more simply.
+Use grpc more simply on Node.js.
+
+## install
+```sh
+$ npm install grpc @grpc/proto-loader grpc-kit
+```
 
 ## proto
 ```proto
