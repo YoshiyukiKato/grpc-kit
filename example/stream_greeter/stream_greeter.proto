@@ -1,0 +1,13 @@
+syntax="proto3";
+
+package stream_greeter;
+
+service StreamGreeter {
+  rpc ClientStreamHello(stream Message) returns(Message) {}
+  rpc ServerStreamHello(Message) returns(stream Message) {}
+  rpc MutualStreamHello (stream Message) returns (stream Message) {}
+}
+
+message Message {
+  string message = 1;
+}
