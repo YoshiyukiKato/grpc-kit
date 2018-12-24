@@ -1,6 +1,6 @@
 {
   "name": "grpc-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "use grpc more simply",
   "main": "index.js",
   "scripts": {
