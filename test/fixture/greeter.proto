@@ -3,14 +3,17 @@ syntax="proto3";
 package greeter;
 
 service Greeter {
-  rpc Hello (RequestGreet) returns (ResponseGreet) {}
-  rpc Goodbye (RequestGreet) returns (ResponseGreet) {}
+  rpc Hello (Name) returns (Message) {}
+  rpc Goodbye (Name) returns (Message) {}
+  rpc NiceToMeetYou (Name) returns (stream Message) {}
+  rpc CheerUp (stream Message) returns (Message) {}
+  rpc Chat (stream Message) returns (stream Message) {}
 }
 
-message RequestGreet {
+message Name {
   string name = 1;
 }
 
-message ResponseGreet {
+message Message {
   string message = 1;
 }

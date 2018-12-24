@@ -15,6 +15,32 @@ server.use({
     },
     goodbye: async (call) => {
       return { message: `Goodbye, ${call.request.name}` };
+    },
+    niceToMeetYou: (call) => {
+      call.write({ message: `Hi, ${call.request.name}.` });
+      call.write({ message: "I am Greeter." });
+      call.write({ message: "Nice to meet you!" });
+      call.end();
+    },
+    cheerUp: (call, callback) => {
+      call.on("data", (grumbleChunk) => {});
+      call.on("end", () => {
+        callback(null, { message: "Cheer up. Tommorow is Friday." });
+      });
+    },
+    chat: (call) => {
+      call.on("data", (chunk) => {
+        if(chunk.message === "Hi") {
+          call.write({ message: "Hi" });
+        } else if (chunk.message === "How are you?"){
+          call.write({ message: "I'm fine!" });
+        } else {
+          call.write({ message: "pardon?" });
+        }
+      });
+      call.on("end", () => {
+        call.end();
+      });
     }
   }
 });
@@ -31,27 +57,69 @@ describe("grpc-kit", () => {
   });
   
   it("says hello", (done) => {
-    client.hello({ name: "Jack" }, (err, {message}) => {
+    client.hello({ name: "Jack" }, (err, res) => {
       if (err) {
         assert(err);
       } else {
-        assert(message === "Hello, Jack");
+        assert(res.message === "Hello, Jack");
       };
       done();
     });
   });
 
   it("says goodbye", (done) => {
-    client.goodbye({ name: "John" }, (err, {message}) => {
+    client.goodbye({ name: "John" }, (err, res) => {
       if (err) {
         assert(err);
       } else {
-        assert(message === "Goodbye, John");
+        assert(res.message === "Goodbye, John");
       };
       done();
     });
   });
-  
+
+  it("says nice to meet you", (done) => {
+    const call = client.niceToMeetYou({ name: "Linda" });
+    const messages = [];
+    call.on("data", (chunk) => {
+      messages.push(chunk.message);
+    });
+    call.on("end", () => {
+      assert.deepEqual(messages, ["Hi, Linda.", "I am Greeter.", "Nice to meet you!"]);
+      done();
+    });
+  });
+
+  it("cheers up", (done) => {
+    const call = client.cheerUp((err, res) => {
+      if(err){
+        assert(err);
+      }else{
+        assert(res.message === "Cheer up. Tommorow is Friday.");
+      }
+      done();
+    });
+    call.write({ message: "Phew..." });
+    call.write({ message: "I'm so tired..." });
+    call.write({ message: "I want to quit my job..." });
+    call.end();
+  });
+
+  it("chats", (done) => {
+    const call = client.chat();
+    const messages = [];
+    call.on("data", (chunk) => {
+      messages.push(chunk.message);
+    });
+    call.on("end", () => {
+      assert.deepEqual(messages, ["Hi", "I'm fine!"]);
+      done();
+    });
+    call.write({ message: "Hi" });
+    call.write({ message: "How are you?" });
+    call.end();
+  });
+
   after((done) => {
     server.close(false, () => {
       done();
