@@ -70,6 +70,116 @@ client.goodbye({ name: "John" }, (err, { message }) => {
 });
 ```
 
+## use stream
+### proto
+```proto
+syntax="proto3";
+
+package stream_greeter;
+
+service StreamGreeter {
+  rpc ClientStreamHello(stream Message) returns(Message) {}
+  rpc ServerStreamHello(Message) returns(stream Message) {}
+  rpc MutualStreamHello (stream Message) returns (stream Message) {}
+}
+
+message Message {
+  string message = 1;
+}
+```
+
+### Server
+```js
+const {createServer} = require("grpc-kit");
+const server = createServer();
+
+server.use({
+  protoPath: "/path/to/stream_greeter.proto"),
+  packageName: "stream_greeter",
+  serviceName: "StreamGreeter",
+  routes: {
+    clientStreamHello: (call, callback) => {
+      call.on("data", (chunk) => {
+        //exec when client wrote message
+        console.log(chunk.message);
+      });
+      call.on("end", (chunk) => {
+        callback(null, { message: "Hello! I'm fine, thank you!" })
+      });
+    },
+
+    serverStreamHello: (call) => {
+      console.log(call.request.message);
+      call.write({ message: "Hello!" });
+      call.write({ message: "I'm fine, thank you" });
+      call.end();
+    },
+
+    mutualStreamHello: (call) => {
+      call.on("data", (chunk) => {
+        //exec when client wrote message
+        console.log(chunk.message);
+        if(chunk.message === "Hello!"){
+          call.write({ message: "Hello!" });
+        } else if(chunk.message === "How are you?"){
+          call.write({ message: "I'm fine, thank you" });
+        } else {
+          call.write({ message: "pardon?" });
+        }
+      });
+      call.on("end", (chunk) => {
+        call.end();
+      });
+    }
+  }
+});
+
+server.listen("0.0.0.0:50051");
+```
+
+### Client
+```js
+const {createClient} = require("grpc-kit");
+const client = createClient({
+  protoPath: "/path/to/stream_greeter.proto",
+  packageName: "stream_greeter",
+  serviceName: "StreamGreeter"
+}, "0.0.0.0:50051");
+```
+#### client stream
+```js
+const call = client.clientStreamHello((err, res) => {
+  if(err) throw err;
+  console.log(res.message);
+});
+call.write({ message: "Hello!" });
+call.write({ message: "How are you?" });
+call.end();
+```
+#### server stream
+```js
+const call = client.serverStreamHello({ message: "Hello! How are you?" });
+call.on("data", (chunk) => {
+  console.log(chunk.message);
+});
+call.on("end", () => {
+  //exec when server streaming ended.
+});
+```
+#### mutual stream
+```js
+const call = client.mutualStreamHello();
+call.on("data", (chunk) => {
+  console.log(chunk.message);
+});
+call.on("end", () => {
+  //exec when server streaming ended.
+});
+call.write({ message: "Hello!" });
+call.write({ message: "How are you?" });
+call.end();
+```
+
 ## api
 ### createServer(): GrpcServer
 Create `GrpcServer` instance. `GrpcServer` is a wrapper class of `grpc.Server` providing simplified api to register services.
