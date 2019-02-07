@@ -3,6 +3,7 @@ const assert = require("power-assert");
 const {createServer, createClient} = require("../index");
 
 const PROTO_PATH = path.resolve(__dirname, "./fixture/greeter.proto");
+const NESTED_PROTO_PATH = path.resolve(__dirname, "./fixture/nested.proto");
 
 const server = createServer();
 server.use({
@@ -44,11 +45,30 @@ server.use({
     }
   }
 });
+server.use({
+  protoPath: NESTED_PROTO_PATH,
+  packageName: "greeter.v1",
+  serviceName: "NestedGreeter",
+  routes: {
+    hello: (call, callback) => {
+      callback(null, { message: `Hello, ${call.request.name}` });
+    },
+    goodbye: async (call) => {
+      return { message: `Goodbye, ${call.request.name}` };
+    },
+  }
+});
 
 const client = createClient({
   protoPath: PROTO_PATH,
   packageName: "greeter",
   serviceName: "Greeter"
+}, "0.0.0.0:50051");
+
+const nested_client = createClient({
+  protoPath: NESTED_PROTO_PATH,
+  packageName: "greeter.v1",
+  serviceName: "NestedGreeter"
 }, "0.0.0.0:50051");
 
 describe("grpc-kit", () => {
@@ -122,6 +142,28 @@ describe("grpc-kit", () => {
 
   after((done) => {
     server.close(false, () => {
+      done();
+    });
+  });
+
+  it("says nested package hello", (done) => {
+    nested_client.hello({ name: "Jack" }, (err, res) => {
+      if (err) {
+        assert(err);
+      } else {
+        assert(res.message === "Hello, Jack");
+      };
+      done();
+    });
+  });
+
+  it("says nested package goodbye", (done) => {
+    nested_client.goodbye({ name: "John" }, (err, res) => {
+      if (err) {
+        assert(err);
+      } else {
+        assert(res.message === "Goodbye, John");
+      };
       done();
     });
   });
