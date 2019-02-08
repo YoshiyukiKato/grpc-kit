@@ -1,8 +1,14 @@
 const grpc = require("grpc");
 const protoLoader = require("@grpc/proto-loader");
 
+function getProtoFromPackageDefinition(packageDefinition, packageName) {
+  const pathArr = packageName.split(".");
+  return pathArr.reduce((obj, key) => (obj && obj[key] !== 'undefined') ? obj[key] : undefined, packageDefinition);
+}
+
 function createClient({ protoPath, packageName, serviceName, options }, address, creds=grpc.credentials.createInsecure()){
-  const proto = grpc.loadPackageDefinition(protoLoader.loadSync(protoPath, options))[packageName];
+  const pkgDef = grpc.loadPackageDefinition(protoLoader.loadSync(protoPath, options));
+  const proto = getProtoFromPackageDefinition(pkgDef, packageName);
   return new proto[serviceName](address, creds);
 }
 
@@ -16,7 +22,8 @@ class GrpcServer {
   }
 
   use({ protoPath, packageName, serviceName, routes, options }){
-    const proto = grpc.loadPackageDefinition(protoLoader.loadSync(protoPath, options))[packageName];
+    const pkgDef = grpc.loadPackageDefinition(protoLoader.loadSync(protoPath, options));
+    const proto = getProtoFromPackageDefinition(pkgDef, packageName);
     const router = Object.entries(routes).reduce((_router, [action, handler]) => {
       _router[action] = handleWhetherAsyncOrNot(handler);
       return _router;

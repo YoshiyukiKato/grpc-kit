@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package greeter.v1;
+
+service NestedGreeter {
+  rpc Hello (Name) returns (Message) {}
+  rpc Goodbye (Name) returns (Message) {}
+}
+
+message Name {
+  string name = 1;
+}
+
+message Message {
+  string message = 1;
+}
