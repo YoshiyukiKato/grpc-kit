@@ -71,8 +71,6 @@ const client = createClient({
     defaults: true,
     oneofs: true
   }
-}
-
 }, "0.0.0.0:50051");
 
 client.hello({ name: "Jack" }, (err, { message }) => {
