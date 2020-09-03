@@ -167,4 +167,9 @@ describe("grpc-kit", () => {
       done();
     });
   });
+
+  it("exposes the server's port number", (done) => {
+    assert(server.port === 50051);
+    done();
+  });
 });
