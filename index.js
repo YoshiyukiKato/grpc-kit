@@ -33,7 +33,7 @@ class GrpcServer {
   }
   
   listen(address, creds=grpc.ServerCredentials.createInsecure()){
-    this.server.bind(address, creds);
+    this.port = this.server.bind(address, creds);
     this.server.start();
     return this;
   }
