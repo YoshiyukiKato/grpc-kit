@@ -72,8 +72,8 @@ const nested_client = createClient({
 }, "0.0.0.0:50051");
 
 describe("grpc-kit", () => {
-  before(() => {
-    server.listen("0.0.0.0:50051");
+  before(async () => {
+    await server.listen("0.0.0.0:50051");
   });
   
   it("says hello", (done) => {
