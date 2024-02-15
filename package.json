@@ -4,7 +4,7 @@
   "description": "use grpc more simply",
   "main": "index.js",
   "scripts": {
-    "test": "$(npm bin)/mocha --require intelli-espower-loader test"
+    "test": "mocha --require intelli-espower-loader"
   },
   "repository": {
     "type": "git",
@@ -20,14 +20,15 @@
   },
   "homepage": "https://github.com/YoshiyukiKato/grpc-kit#readme",
   "peerDependencies": {
-    "grpc": "^1.17.0",
-    "@grpc/proto-loader": "^0.3.0"
+    "@grpc/grpc-js": "^1.9.14",
+    "@grpc/proto-loader": "^0.7.10"
   },
   "dependencies": {},
   "devDependencies": {
-    "@grpc/proto-loader": "^0.3.0",
-    "grpc": "^1.17.0",
-    "intelli-espower-loader": "^1.0.1",
-    "mocha": "^5.2.0"
+    "@grpc/grpc-js": "^1.9.14",
+    "@grpc/proto-loader": "^0.7.10",
+    "intelli-espower-loader": "^1.1.0",
+    "power-assert": "^1.6.1",
+    "mocha": "^10.3.0"
   }
 }
